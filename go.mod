@@ -5,6 +5,7 @@ go 1.24.3
 toolchain go1.24.4
 
 require (
+	github.com/alphacep/vosk-api/go v0.3.50 // indirect
 	github.com/andybalholm/brotli v1.1.1 // indirect
 	github.com/bytedance/sonic v1.13.2 // indirect
 	github.com/bytedance/sonic/loader v0.2.4 // indirect

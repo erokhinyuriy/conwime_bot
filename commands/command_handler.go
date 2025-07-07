@@ -4,6 +4,8 @@ import (
 	"fmt"
 	"log"
 
+	helper "conwime/bot/helpers"
+
 	"github.com/mymmrac/telego"
 	th "github.com/mymmrac/telego/telegohandler"
 	tu "github.com/mymmrac/telego/telegoutil"
@@ -48,15 +50,43 @@ func ProcessHelp(ctx *th.Context, updates telego.Update) error {
 	return nil
 }
 
+func ProcessVoice(ctx *th.Context, fileID string) string {
+	voice, err := ctx.Bot().GetFile(ctx, &telego.GetFileParams{
+		FileID: fileID,
+	})
+
+	if err != nil {
+		log.Fatal("Ошибка при попытке получить аудио файл")
+	}
+
+	return helper.FormatVoiceToText(ctx, voice)
+}
+
 func ProcessAnyMessages(ctx *th.Context, updates telego.Update) error {
 	chatID := updates.Message.Chat.ID
 
-	_, _ = ctx.Bot().SendMessage(ctx,
-		tu.Message(
-			tu.ID(chatID),
-			"Упс.. давайте по-конкретнее",
-		),
-	)
+	txt := updates.Message.Text
 
-	return nil
+	if txt != "" {
+		_, _ = ctx.Bot().SendMessage(ctx,
+			tu.Message(
+				tu.ID(chatID),
+				"Упс.. давайте по-конкретнее",
+			),
+		)
+		return nil
+	} else {
+		voiceFileID := updates.Message.Voice.FileID
+
+		if voiceFileID != "" {
+			txtResult := ProcessVoice(ctx, voiceFileID)
+			_, _ = ctx.Bot().SendMessage(ctx,
+				tu.Message(
+					tu.ID(chatID),
+					txtResult,
+				),
+			)
+		}
+		return nil
+	}
 }
